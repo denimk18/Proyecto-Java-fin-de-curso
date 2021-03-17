@@ -1,0 +1,266 @@
+CREATE TABLE personal (
+ cod_personal  INT(4) NOT NULL PRIMARY KEY,
+ nombre  VARCHAR(15), 
+ apellidos VARCHAR(15),
+ dni VARCHAR(9),
+ oficio VARCHAR(15),
+ direccion VARCHAR(40),
+ cursos VARCHAR(250),
+ salario DOUBLE,
+ titulacion VARCHAR(30)
+) ENGINE=InnoDB;
+
+CREATE TABLE pacientes (
+ cod_paciente  INT(4) NOT NULL PRIMARY KEY,
+ nombre  VARCHAR(15), 
+ direccion VARCHAR(40),
+ telefono_urgencia INT(9),
+ fecha_alta DATE,
+ cod_medico INT(4) NOT NULL
+ ) ENGINE=InnoDB;
+
+CREATE TABLE diagnostico_paciente (
+ cod_diagnostico INT(4) NOT NULL PRIMARY KEY,
+ cod_paciente  INT(4) NOT NULL,
+ nombre_farmaco  VARCHAR(15), 
+ cantidad INT(2),
+ diagnostico VARCHAR(500), -- AQUÍ QUIZAS DÉ ERROR AL RECUPERARLO DE JAVA , NO LO SÉ
+ fecha_diagnostico DATE,
+ CONSTRAINT FK_CODPACIENTE FOREIGN KEY (cod_paciente) REFERENCES pacientes(cod_paciente) on delete cascade
+
+) ENGINE=InnoDB;
+
+
+CREATE TABLE inventario_farmacia(
+  cod_medicamento INT(4) NOT NULL PRIMARY KEY, 
+  nombre VARCHAR(15),
+  unidades INT(5) ,-- EQUIVALE A CANTIDAD
+  fecha_llegada DATE
+)ENGINE=InnoDB;
+
+
+CREATE TABLE farmacos_enfermera(
+  cod_administracion INT(4) primary key AUTO_INCREMENT,
+  cod_paciente INT(4) NOT NULL, 
+  cod_farmaco INT(4) NOT NULL,
+  cantidad INT(4) NOT NULL,
+  fecha_administracion DATE,
+ CONSTRAINT FK_CODIGO_PACIENTE FOREIGN KEY (cod_paciente) REFERENCES pacientes(cod_paciente) on delete cascade,
+ CONSTRAINT FK_CODIGO_FARMACO FOREIGN KEY (cod_farmaco) REFERENCES inventario_farmacia(cod_medicamento) on delete cascade
+)ENGINE=InnoDB;
+
+
+
+CREATE TABLE pedido_farmacia(
+  nombre VARCHAR(15) not null primary key,
+  unidades_pedidas INT(5) ,-- EQUIVALE A CANTIDAD
+  fecha_pedido DATE
+)ENGINE=InnoDB;
+
+
+CREATE TABLE autentificacion(
+  cod_personal INT(4) NOT NULL PRIMARY KEY, 
+  usuario VARCHAR(15),
+  contraseña VARCHAR(200) ,-- EQUIVALE A CANTIDAD
+ CONSTRAINT FK_CODPERSONAL FOREIGN KEY (cod_personal) REFERENCES personal(cod_personal)
+)ENGINE=InnoDB;
+
+CREATE TABLE incidencias_paciente(
+  cod_incidencia INT(4) NOT NULL PRIMARY KEY,
+  cod_paciente INT(4) NOT NULL , 
+  cod_medicamento INT(4) NOT NULL ,
+  cantidad int(4),
+  fecha DATE,
+  causa VARCHAR(500),
+  cura VARCHAR(500),
+  comunicado_familiares VARCHAR(500),
+ CONSTRAINT CODIGO_PACIENTE FOREIGN KEY (cod_paciente) REFERENCES pacientes(cod_paciente) on delete cascade,
+ CONSTRAINT FK_COD__MEDICAMENTO FOREIGN KEY (cod_medicamento) REFERENCES inventario_farmacia(cod_medicamento) on delete cascade
+
+)ENGINE=InnoDB;
+
+CREATE TABLE preguntas_personal(
+	cod_personal INT(4) NOT NULL PRIMARY KEY,
+	pregunta VARCHAR(50) ,
+	respuesta VARCHAR(50),
+	CONSTRAINT FK_COD_PERS FOREIGN KEY (cod_personal) REFERENCES personal(cod_personal) on delete cascade
+ 
+) ENGINE=InnoDB;
+
+CREATE TABLE recetas(
+	cod_receta int  primary key AUTO_INCREMENT,
+	cod_paciente int,
+	cod_medicamento int,
+	fecha_receta date,
+	administracion varchar(70),
+ CONSTRAINT CODI_PACIENTE FOREIGN KEY (cod_paciente) REFERENCES pacientes(cod_paciente) on delete cascade
+)ENGINE=InnoDB;
+
+
+CREATE TABLE solicitud_medicamento(
+  cod_solicitud int  primary key AUTO_INCREMENT,
+  nombre VARCHAR(15) not null,
+  unidades_pedidas INT(5) ,-- EQUIVALE A CANTIDAD
+  fecha_pedido DATE
+)ENGINE=InnoDB; -- De esta tabla no he hecho inserts, lo he hecho directamente desde el programa.
+
+CREATE TABLE recepcion_medicacion(
+	cod_medicamento int(4) primary key not null,
+	nombre varchar(15) not null,
+	fecha_llegada date ,
+	unidades_pedidas int (4),
+	unidades_recibidas int(4)
+)ENGINE= InnoDB;
+
+CREATE TABLE visitas(
+	cod_visita int  primary key AUTO_INCREMENT,
+	nombre_familiar varchar(25),
+	dni varchar(9),
+	fecha date,
+	cod_paciente int(4),
+	CONSTRAINT CODIG_PACIENTE FOREIGN KEY (cod_paciente) REFERENCES pacientes(cod_paciente) on delete cascade
+
+);
+
+CREATE TABLE material_oficina(
+	nombre varchar(25) primary key not null,
+	unidades int(4),
+	fecha_llegada date
+);
+
+CREATE TABLE pedidos_oficina(
+	nombre   varchar(25) primary key,
+	unidades int(4),
+	fecha_pedido date
+);
+
+CREATE TABLE recepcion_oficina(
+	nombre varchar(25),
+	unidades int(4),
+	fecha_llegada date
+);
+
+
+CREATE TABLE insercionContraseña(
+	contraseñaInsertada int(1) primary key not null -- si está a 0 significa que no hay contraseñas, 1 lo contrario
+);
+
+-- INSERCIÓN DE DATOS EN LA TABLA PERSONAL
+INSERT INTO  PERSONAL VALUES(1, 'Ramón', 'Jiménez', '01234567X', 'MÉDICO' ,'C/LA BARCA Nº15 1ºB', 'Actualización de electrocardiografía',2500,'DOCTORADO MEDICINA INTERNA');
+INSERT INTO  PERSONAL VALUES(2, 'Ana', 'Ramírez', 'A12345678', 'MÉDICO', 'C/LA MANCHA Nº889','Atención sanitaria de pediatría , Control de infecciones asociadas a la atención de salud',
+ 2780, 'MÁSTER EN MEDICINA');
+INSERT INTO  PERSONAL VALUES(3, 'Tania', 'Marinova', 'X4114099C' , 'MÉDICO' ,'C/MEDITERRÁNEA Nº76','Atención sociosanitaria',2800,'Doctorado en cardiología');
+INSERT INTO  PERSONAL VALUES(4, 'Radka', 'Taneva', '13245678D', 'ENFERMERA', 'C/GUADALQUIVIR Nº13 2ºJ','',1800,'Doctorado en enfermería');
+INSERT INTO  PERSONAL VALUES(5, 'Elizabeth', 'Alba', '55555F', 'ENFERMERA','C/YUNQUERA Nº23', 'Primeros auxilios',1500,'Doctorado en enfermería');
+INSERT INTO  PERSONAL VALUES(6, 'Pedro', 'Herrera', '1234567D' , 'ENFERMERO','PSEO ESTACIÓN Nº 44', '', 1750, 'Doctorado en enfermería');
+INSERT INTO  PERSONAL VALUES(7, 'Noelia', 'López', '13279845C', 'FARMACIA','AVENIDA GUADIANA Nº 34', '', 1200, 'FP Superior farmacia');
+INSERT INTO  PERSONAL VALUES(8, 'Jaime', 'Pedraza', '13245682D' , 'FARMACIA','C/CULLERA 45', '', 1500, 'Doctorado farmacia');
+INSERT INTO  PERSONAL VALUES(9, 'Sara', 'López', '12345678E' , 'ADMINISTRATIVO','PSEO ESTACIÓN Nº 13', 'Curso de excel', 1100, 'Grado medio administración');
+INSERT INTO  PERSONAL VALUES(10, 'Mario', 'Sanz', '98765432A' , 'ADMINISTRATIVO','AVDA EJÉRCITO Nº 13', '', 1300, 'Grado superior administración');
+
+-- INSERCIÓN DE DATOS EN LA TABLA AUTENTIFICACIÓN. Las contraseñas estarán encriptadas y eso lo hago desde eclipse
+INSERT INTO AUTENTIFICACION (COD_PERSONAL,USUARIO) VALUES(1,'Ramon01');
+INSERT INTO AUTENTIFICACION (COD_PERSONAL,USUARIO) VALUES(2,'Ana02');
+INSERT INTO AUTENTIFICACION (COD_PERSONAL,USUARIO) VALUES(3,'Tania03');
+INSERT INTO AUTENTIFICACION (COD_PERSONAL,USUARIO) VALUES(4,'Radka04');
+INSERT INTO AUTENTIFICACION (COD_PERSONAL,USUARIO) VALUES(5,'Elizabeth05');
+INSERT INTO AUTENTIFICACION (COD_PERSONAL,USUARIO) VALUES(6,'Pedro06');
+INSERT INTO AUTENTIFICACION (COD_PERSONAL,USUARIO) VALUES(7,'Noelia07');
+INSERT INTO AUTENTIFICACION (COD_PERSONAL,USUARIO) VALUES(8,'Jaime08');
+INSERT INTO AUTENTIFICACION (COD_PERSONAL,USUARIO) VALUES(9,'Sara09');
+INSERT INTO AUTENTIFICACION (COD_PERSONAL,USUARIO) VALUES(10,'Jaime10');
+
+-- INSERCIÓN DE DATOS EN LA TABLA PACIENTES
+INSERT INTO PACIENTES VALUES(1,'Jaime Altozano', 'C/La Barca nº 14',45612379, '2019-12-12',1);
+INSERT INTO PACIENTES VALUES(2,'Ana Maria Manea', 'C/Eclipse nº 10',132456789, '2019-01-12',1);
+INSERT INTO PACIENTES VALUES(3,'Agustina Loa', 'Pseo de la Estación nº 15',11111112, '2019-03-15',1);
+INSERT INTO PACIENTES VALUES(4,'Agustin Alba', 'C/Guadalajara nº17',661287775, '2015-06-12',2);
+INSERT INTO PACIENTES VALUES(5,'Ángela Mayo', 'C/Calderón nº78', 57895262, '2010-05-12',2);
+INSERT INTO PACIENTES VALUES(6,'Alex Bárcenas', 'C/Gisell nº44', 78954232, '2015-12-12',2);
+INSERT INTO PACIENTES VALUES(7,'Jaime Lorente', 'C/Tego nº8',54623359, '2012-04-12',3);
+INSERT INTO PACIENTES VALUES(8,'Miguel Colorado', 'C/Latté nº54',7984652, '2015-12-12',3);
+INSERT INTO PACIENTES VALUES(9,'Lucia Rojas', 'C/Constitución nº 14',7853236, '2019-12-12',3);
+
+-- INSERCIÓN DE DATOS EN LA TABLA INVENTARIO_FARMACIA
+INSERT INTO INVENTARIO_FARMACIA VALUES(12,'IBUPROFENO',100,'2020/04/05');
+INSERT INTO INVENTARIO_FARMACIA VALUES(13,'PARACETAMOL',48,'2020/01/10');
+INSERT INTO INVENTARIO_FARMACIA VALUES(14,'NAPROXENO',78,'2020/03/20');
+INSERT INTO INVENTARIO_FARMACIA VALUES(15,'KILOR HIERRO',78,'2020/03/20');
+INSERT INTO INVENTARIO_FARMACIA VALUES(16,'AMOXICILINA',25,'2020/04/04'); 
+INSERT INTO INVENTARIO_FARMACIA VALUES(17,'DIPLOFENACO',250,'2020/02/12');
+INSERT INTO INVENTARIO_FARMACIA VALUES(18,'ADRENALINA',10,'2020/02/12');
+INSERT INTO INVENTARIO_FARMACIA VALUES(19,'SINTRON',20,'2020/02/12');
+
+-- INSERCIÓN DE DATOS EN LA TABLA PEDIDO_FARMACIA
+INSERT INTO PEDIDO_FARMACIA(nombre,unidades_pedidas,fecha_pedido) VALUES('ESPEDIFEN',100,'2020/04/05');
+INSERT INTO PEDIDO_FARMACIA(nombre,unidades_pedidas,fecha_pedido) VALUES('LIZIPAINA',50,'2020/04/05');
+INSERT INTO PEDIDO_FARMACIA(nombre,unidades_pedidas,fecha_pedido) VALUES('MORFINA',2,'2020/04/05');
+INSERT INTO PEDIDO_FARMACIA(nombre,unidades_pedidas,fecha_pedido) VALUES('AMOXICILINA',100,'2020/04/05');
+
+-- INSERCIÓN DE DATOS EN LA TABLA DIAGNOSTICO_PACIENTE
+INSERT INTO DIAGNOSTICO_PACIENTE VALUES(100,1,'AMOXICILINA',8, 'AMIGDALITIS', '2020-05-17');
+INSERT INTO DIAGNOSTICO_PACIENTE VALUES(101,2,'IBUPROFENO',1, 'DOLOR DE CABEZA', '2020-04-15');
+INSERT INTO DIAGNOSTICO_PACIENTE VALUES(102,3,'PARACETAMOL',2, 'INFLAMACIÓN DE MUÑECA', '2020-05-20');
+INSERT INTO DIAGNOSTICO_PACIENTE VALUES(103,4,'KILOR HIERRO',1, 'TENSIÓN BAJA', '2020-05-20');
+INSERT INTO DIAGNOSTICO_PACIENTE VALUES(104,5,'DIPLOFENACO',2, 'INFLAMACIÓN TOBILLO', '2020-05-20');
+INSERT INTO DIAGNOSTICO_PACIENTE VALUES(105,6,'NAPROXENO',2, 'DOLOR DE CABEZA', '2020-05-20');
+INSERT INTO DIAGNOSTICO_PACIENTE VALUES(106,7,'AMOXICILINA',4, 'INFECCIÓN HERIDA', '2020-05-20');
+INSERT INTO DIAGNOSTICO_PACIENTE VALUES(107,8,'IBUPROFENO',1, 'DOLOR LOCALIZADO DESPUÉS DE CAÍDA', '2020-05-20');
+INSERT INTO DIAGNOSTICO_PACIENTE VALUES(108,9,'PARACETAMOL',2, 'DOLOR OIDO', '2020-05-20');
+
+-- INSERCIÓN DE FARMÁCOS_ENFERMERA
+INSERT INTO FARMACOS_ENFERMERA(cod_paciente, cod_farmaco,cantidad,fecha_administracion) VALUES(1,16,8,'2020-05-20');
+INSERT INTO FARMACOS_ENFERMERA(cod_paciente, cod_farmaco,cantidad,fecha_administracion) VALUES(2,12,1,'2020-05-20');
+INSERT INTO FARMACOS_ENFERMERA(cod_paciente, cod_farmaco,cantidad,fecha_administracion) VALUES(3,13,2,'2020-05-20');
+INSERT INTO FARMACOS_ENFERMERA(cod_paciente, cod_farmaco,cantidad,fecha_administracion) VALUES(4,16,1,'2020-05-20');
+INSERT INTO FARMACOS_ENFERMERA(cod_paciente, cod_farmaco,cantidad,fecha_administracion) VALUES(5,17,2,'2020-05-20');
+INSERT INTO FARMACOS_ENFERMERA(cod_paciente, cod_farmaco,cantidad,fecha_administracion) VALUES(6,14,2,'2020-05-20');
+INSERT INTO FARMACOS_ENFERMERA(cod_paciente, cod_farmaco,cantidad,fecha_administracion) VALUES(7,16,4,'2020-05-20');
+INSERT INTO FARMACOS_ENFERMERA(cod_paciente, cod_farmaco,cantidad,fecha_administracion) VALUES(8,12,1,'2020-05-20');
+INSERT INTO FARMACOS_ENFERMERA(cod_paciente, cod_farmaco,cantidad,fecha_administracion) VALUES(9,13,2,'2020-05-20');
+
+-- INSERCIÓN DE DATOS EN INCIDENCIAS_PACIENTE
+INSERT INTO INCIDENCIAS_PACIENTE VALUES(112,5,12,1,'2020-05-17','El paciente se ha caído y se ha lesionado la muñeca',
+'Se le aplican compresas de frío y suministrado ibuprofeno', 'Se ha comunicado a los familiares');
+
+-- INSERCIÓN DE DATOS EN PREGUNTAS_PERSONAL
+INSERT INTO preguntas_personal VALUES(1, 'Nombre primera mascota', 'Simba');
+INSERT INTO preguntas_personal VALUES(2, 'Nombre amigo de la infancia', 'Mario');
+INSERT INTO preguntas_personal VALUES(3, 'Marca del primer coche', 'Renault');
+INSERT INTO preguntas_personal VALUES(4, 'Escuela en la que estudiaste la ESO', 'IES Clara Campoamor');
+INSERT INTO preguntas_personal VALUES(5, 'Destino del primer viaje', 'Gandía');
+INSERT INTO preguntas_personal VALUES(6, 'Marca del primer coche', 'BMW');
+INSERT INTO preguntas_personal VALUES(7, '¿Cuándo se casaron tus padres?', '1990-12-12');
+INSERT INTO preguntas_personal VALUES(8, 'Nombre amigo de la infancia', 'Ruth');
+INSERT INTO preguntas_personal VALUES(9, 'Destino del primer viaje', 'Londres');
+INSERT INTO preguntas_personal VALUES(10, 'Marca del primer coche', 'Seat');
+
+
+-- INSERCIÓN DE DATOS EN LA RECETAS
+INSERT INTO RECETAS (cod_paciente, cod_medicamento,fecha_receta,administracion) VALUES(1,16,'2020-05-20','Tomar una cápsula cada 12 horas durante 4 días');
+INSERT INTO RECETAS (cod_paciente, cod_medicamento,fecha_receta,administracion) VALUES(7,16,'2020-05-20','Tomar un comprimido cada 12h durante 2 días');
+INSERT INTO RECETAS (cod_paciente, cod_medicamento,fecha_receta,administracion) VALUES(4,15,'2020-05-20','Tomar un único comprimido con la comida.');
+
+
+-- INSERCIÓN EN RECEPCION_MEDICACION
+INSERT INTO RECEPCION_MEDICACION  VALUES(16,'AMOXICILINA', '2020-04-06',100,100);
+INSERT INTO RECEPCION_MEDICACION  VALUES(20,'ESPEDIFEN', '2020-04-06',100,100);
+INSERT INTO RECEPCION_MEDICACION  VALUES(21,'LIZIPAINA', '2020-04-06',50,50);
+INSERT INTO RECEPCION_MEDICACION  VALUES(22,'MORFINA', '2020-04-06',2,2);
+
+
+INSERT INTO VISITAS(nombre_familiar,dni,fecha,cod_paciente) VALUES('Juan Sánchez', 'X411422C', '2020-05-01', 1);
+
+INSERT INTO MATERIAL_OFICINA VALUES('FOLIOS DINA4', 5, '2020-05-01');
+INSERT INTO MATERIAL_OFICINA VALUES('ARCHIVADORES', 10, '2020-05-02');
+INSERT INTO MATERIAL_OFICINA VALUES('BOLÍGRAFOS BIC', 20, '2020-05-02');
+INSERT INTO MATERIAL_OFICINA VALUES('TÓNER IMPRESORA', 2, '2020-05-01');
+
+
+INSERT INTO PEDIDOS_OFICINA(nombre,unidades,fecha_pedido) VALUES('BOLÍGRAFOS BIC', 10, '2020-05-01');
+
+INSERT INTO RECEPCION_OFICINA VALUES('BOLÍGRAFOS BIC', 10, '2020-05-02');
+
+
+-- Lo utilizo para controlar el nº de veces que se van a actualizar las contraseñas de los usuarios.
+INSERT INTO insercionContraseña values(0);
